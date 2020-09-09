@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// import { Patient } from "../types";
 import { Header, Icon } from "semantic-ui-react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
