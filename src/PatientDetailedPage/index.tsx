@@ -4,11 +4,11 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiBaseUrl } from "../constants";
 import { Patient } from "../types";
-import { useStateValue, modifyPatient } from "../state";
+import { useStateValue, modifyPatient, setDiagnosisList } from "../state";
 
 const PatientDetailedPage: React.FC = () => {
     const [patient, setPatient] = useState<Patient | undefined>(undefined);
-    const [{ patientsSensitive }, dispatch] = useStateValue();
+    const [{ diagnoses, patientsSensitive }, dispatch] = useStateValue();
     const { id } = useParams<{ id: string }>();
     useEffect(() => {
         const getPatientInfo = async () => {
@@ -27,8 +27,23 @@ const PatientDetailedPage: React.FC = () => {
                 console.error(e.response.data);
             }
         };
+
+        const getDiagnoses = async () => {
+            try {
+                if (Object.keys(diagnoses).length === 0) {
+                    const diagnosesPromise = await axios.get(
+                        `${apiBaseUrl}/diagnoses/`
+                    );
+                    const diagnosisData = await diagnosesPromise.data;
+                    dispatch(setDiagnosisList(diagnosisData));
+                }
+            } catch (e) {
+                console.error(e.response.data);
+            }
+        };
         getPatientInfo();
-    }, [id, dispatch, patientsSensitive]);
+        getDiagnoses();
+    }, [id, dispatch, patientsSensitive, diagnoses]);
 
     return (
         <div>
@@ -60,7 +75,9 @@ const PatientDetailedPage: React.FC = () => {
                                 </p>
                                 <ul>
                                     {entry.diagnosisCodes?.map((code) => (
-                                        <li>{code}</li>
+                                        <li>
+                                            {code}: {diagnoses[code]?.name}
+                                        </li>
                                     ))}
                                 </ul>
                             </div>
