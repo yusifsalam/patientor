@@ -35,3 +35,24 @@ export const StateProvider: React.FC<StateProviderProps> = ({
     );
 };
 export const useStateValue = () => useContext(StateContext);
+
+export const setPatientList = (patients: Patient[]): Action => {
+    return {
+        type: "SET_PATIENT_LIST",
+        payload: patients,
+    };
+};
+
+export const addPatient = (patient: Patient): Action => {
+    return {
+        type: "ADD_PATIENT",
+        payload: patient,
+    };
+};
+
+export const modifyPatient = (patient: Patient): Action => {
+    return {
+        type: "MODIFY_PATIENT",
+        payload: patient,
+    };
+};
