@@ -49,6 +49,23 @@ const PatientDetailedPage: React.FC = () => {
                     {patient.ssn ? <p>SSN: {patient.ssn}</p> : <div />}
                     <p>Occupation: {patient.occupation}</p>
                     <p>Born: {patient.dateOfBirth}</p>
+                    <Header as="h3">entries</Header>
+                    {patient.entries.length === 0 ? (
+                        <p>no entries</p>
+                    ) : (
+                        patient.entries.map((entry) => (
+                            <div key={entry.id}>
+                                <p>
+                                    {entry.date} {entry.description}
+                                </p>
+                                <ul>
+                                    {entry.diagnosisCodes?.map((code) => (
+                                        <li>{code}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))
+                    )}
                 </div>
             ) : (
                 "loading..."
