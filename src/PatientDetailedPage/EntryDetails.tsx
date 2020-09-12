@@ -1,11 +1,11 @@
 import React from "react";
-import { Entry } from "../types";
+import { Entry, EntryType } from "../types";
 import { Icon, Header } from "semantic-ui-react";
 import { HealthCheckRating } from "./HealthCheckRating";
 
 const EntryDetails: React.FC<{ entry: Entry }> = ({ entry }) => {
     switch (entry.type) {
-        case "HealthCheck":
+        case EntryType.HealthCheck:
             return (
                 <div>
                     <Header as="h3">
@@ -15,7 +15,7 @@ const EntryDetails: React.FC<{ entry: Entry }> = ({ entry }) => {
                     <HealthCheckRating rating={entry.healthCheckRating} />
                 </div>
             );
-        case "Hospital":
+        case EntryType.Hospital:
             return (
                 <div>
                     <Header as="h3">
@@ -28,7 +28,7 @@ const EntryDetails: React.FC<{ entry: Entry }> = ({ entry }) => {
                 </div>
             );
 
-        case "OccupationalHealthcare":
+        case EntryType.OccupationalHealthcare:
             return (
                 <div>
                     <Header as="h3">

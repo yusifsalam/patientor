@@ -1,16 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { Header, Icon, Segment } from "semantic-ui-react";
+import { Header, Icon, Segment, Button } from "semantic-ui-react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiBaseUrl } from "../constants";
-import { Patient } from "../types";
-import { useStateValue, modifyPatient, setDiagnosisList } from "../state";
+import { Patient, Entry } from "../types";
+import {
+    useStateValue,
+    modifyPatient,
+    setDiagnosisList,
+    addPatientEntry,
+} from "../state";
 import EntryDetails from "./EntryDetails";
+import AddEntryModal from "../AddEntryModal";
+import { EntryFormValues } from "../AddEntryModal/AddEntryForm";
 
 const PatientDetailedPage: React.FC = () => {
     const [patient, setPatient] = useState<Patient | undefined>(undefined);
     const [{ diagnoses, patientsSensitive }, dispatch] = useStateValue();
     const { id } = useParams<{ id: string }>();
+    const [modalOpen, setModalOpen] = React.useState<boolean>(false);
+    const [error, setError] = React.useState<string | undefined>();
+    const openModal = (): void => setModalOpen(true);
+    const closeModal = (): void => {
+        setModalOpen(false);
+        setError(undefined);
+    };
+
     useEffect(() => {
         const getPatientInfo = async () => {
             try {
@@ -46,6 +61,29 @@ const PatientDetailedPage: React.FC = () => {
         getDiagnoses();
     }, [id, dispatch, patientsSensitive, diagnoses]);
 
+    const submitNewEntry = async (values: EntryFormValues) => {
+        try {
+            const { data: newEntry } = await axios.post<Entry>(
+                `${apiBaseUrl}/patients/${id}/entries`,
+                values
+            );
+            dispatch(addPatientEntry(newEntry, id));
+            if (patient) {
+                const patientCopy: Patient = {
+                    ...patient,
+                    entries: [...patient.entries, newEntry],
+                };
+                setPatient(patientCopy);
+            }
+
+            console.log("new entry", newEntry);
+            closeModal();
+        } catch (e) {
+            console.error(e.response.data);
+            setError(e.response.data.error);
+        }
+    };
+
     return (
         <div>
             {patient ? (
@@ -66,6 +104,7 @@ const PatientDetailedPage: React.FC = () => {
                     <p>Occupation: {patient.occupation}</p>
                     <p>Born: {patient.dateOfBirth}</p>
                     <Header as="h3">entries</Header>
+                    <Button onClick={() => openModal()}>Add new entry</Button>
                     {patient.entries.length === 0 ? (
                         <p>no entries</p>
                     ) : (
@@ -74,7 +113,7 @@ const PatientDetailedPage: React.FC = () => {
                                 <EntryDetails entry={entry} />
                                 <ul>
                                     {entry.diagnosisCodes?.map((code) => (
-                                        <li>
+                                        <li key={code}>
                                             {code}: {diagnoses[code]?.name}
                                         </li>
                                     ))}
@@ -86,6 +125,12 @@ const PatientDetailedPage: React.FC = () => {
             ) : (
                 "loading..."
             )}
+            <AddEntryModal
+                modalOpen={modalOpen}
+                onSubmit={submitNewEntry}
+                error={error}
+                onClose={closeModal}
+            />
         </div>
     );
 };
