@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Header, Icon } from "semantic-ui-react";
+import { Header, Icon, Segment } from "semantic-ui-react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiBaseUrl } from "../constants";
 import { Patient } from "../types";
 import { useStateValue, modifyPatient, setDiagnosisList } from "../state";
+import EntryDetails from "./EntryDetails";
 
 const PatientDetailedPage: React.FC = () => {
     const [patient, setPatient] = useState<Patient | undefined>(undefined);
@@ -69,10 +70,8 @@ const PatientDetailedPage: React.FC = () => {
                         <p>no entries</p>
                     ) : (
                         patient.entries.map((entry) => (
-                            <div key={entry.id}>
-                                <p>
-                                    {entry.date} {entry.description}
-                                </p>
+                            <Segment key={entry.id}>
+                                <EntryDetails entry={entry} />
                                 <ul>
                                     {entry.diagnosisCodes?.map((code) => (
                                         <li>
@@ -80,7 +79,7 @@ const PatientDetailedPage: React.FC = () => {
                                         </li>
                                     ))}
                                 </ul>
-                            </div>
+                            </Segment>
                         ))
                     )}
                 </div>
